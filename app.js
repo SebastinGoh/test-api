@@ -1,3 +1,9 @@
+// Import external utilities
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const fileUpload = require('express-fileupload');
+const dotenv = require('dotenv');
+
 // Handle Error: Shut down server due to uncaught exceptions
 process.on('uncaughtException', err => {
     console.log(`Error: ${err.stack}`);
@@ -6,17 +12,15 @@ process.on('uncaughtException', err => {
 })
 
 // Initiate NodeJS Express app
-const express = require('express');
 const app = express();
-
 // Add Express JSON body parser to app 
 app.use(express.json());
-// Add cookie parser
-const cookieParser = require('cookie-parser');
+// Add cookie parser to app
 app.use(cookieParser());
+// Add handling of file upload to app
+app.use(fileUpload());
 
 // Set up config.env file variables
-const dotenv = require('dotenv');
 dotenv.config({path: './config/config.env'})
 const PORT = process.env.PORT;
 const NODE_ENV = process.env.NODE_ENV;

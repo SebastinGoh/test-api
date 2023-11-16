@@ -7,6 +7,7 @@ const {
     getJob,
     updateJob,
     deleteJob,
+    applyJob,
     getAllJobs,
     getAllJobsInRadius,
     getStatsByJobTopic,
@@ -21,6 +22,7 @@ router.route('/job/:id')
     .get(getJob)
     .put(isUserAuthenticated, authorizedRoles("employer", "admin"), updateJob)
     .delete(isUserAuthenticated, authorizedRoles("employer", "admin"), deleteJob);
+router.route('/job/:id/apply').put(isUserAuthenticated, authorizedRoles("user"), applyJob);
 
 // Set up routing for all jobs routes
 router.route('/jobs').get(getAllJobs);
