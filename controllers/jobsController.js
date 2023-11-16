@@ -7,6 +7,71 @@ const ErrorHandler = require('../utils/errorHandler');
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const APIFilter = require('../utils/filterHandler');
 
+// Create new job (POST)
+// /api/v1/job/
+exports.createJob = catchAsyncErrors( async (req, res, next) => {
+    req.body.user = req.user.id;
+    
+    const job = await Job.create(req.body);
+
+    res.status(200).json({
+        success : true,
+        message : 'Job created',
+        data : job
+    });
+});
+
+// Read job by Id (GET)
+// /api/v1/job/:id
+exports.getJob = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const job = await Job.findById(req.params.id);
+
+        res.status(200).json({
+            success : true,
+            data : job
+        });
+        return;
+    }
+    catch(e) {
+        return next(new ErrorHandler('Error: Job not found', 404));
+    }
+});
+
+// Update job based on job ID (PUT)
+// /api/v1/job/:id
+exports.updateJob = catchAsyncErrors(async (req, res, next) => {
+    try {
+        let job = await Job.findByIdAndUpdate(req.params.id, req.body, {
+            new : true,
+            runValidators : true
+        })
+    
+        res.status(200).json({
+            success : true,
+            message : 'Job updated',
+            data : job
+        });
+    } catch(e) {
+        return next(new ErrorHandler('Error: Job not found', 404));
+    }
+});
+
+// Delete job based on job ID (DELETE)
+// /api/v1/job/:id
+exports.deleteJob = catchAsyncErrors( async (req, res, next) => {
+    try {
+        await Job.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            success : true,
+            message : 'Job deleted',
+        });
+    } catch(e) {
+        return next(new ErrorHandler('Error: Job not found', 404));
+    }
+});
+
 // Get all jobs 
 // /api/v1/jobs/
 exports.getAllJobs = catchAsyncErrors( async (req, res, next) => {
@@ -27,37 +92,6 @@ exports.getAllJobs = catchAsyncErrors( async (req, res, next) => {
         results : jobs.length,
         data : jobs
     });
-});
-
-// Create new job
-// /api/v1/job/new
-exports.createNewJob = catchAsyncErrors( async (req, res, next) => {
-    req.body.user = req.user.id;
-    
-    const job = await Job.create(req.body);
-
-    res.status(200).json({
-        success : true,
-        message : 'Job created',
-        data : job
-    });
-});
-
-// Get job by Id
-// /api/v1/job/:id
-exports.getJobById = catchAsyncErrors(async (req, res, next) => {
-    try {
-        const job = await Job.findById(req.params.id);
-
-        res.status(200).json({
-            success : true,
-            data : job
-        });
-        return;
-    }
-    catch(e) {
-        return next(new ErrorHandler('Error: Job not found', 404));
-    }
 });
 
 // Get all jobs within specified distance of zipcode
@@ -92,40 +126,6 @@ exports.getAllJobsInRadius = catchAsyncErrors( async (req, res, next) => {
         results : jobs.length,
         data : jobs
     });
-});
-
-// Update job based on job ID 
-// /api/v1/job/:id
-exports.updateJobById = catchAsyncErrors(async (req, res, next) => {
-    try {
-        let job = await Job.findByIdAndUpdate(req.params.id, req.body, {
-            new : true,
-            runValidators : true
-        })
-    
-        res.status(200).json({
-            success : true,
-            message : 'Job updated',
-            data : job
-        });
-    } catch(e) {
-        return next(new ErrorHandler('Error: Job not found', 404));
-    }
-});
-
-// Delete job based on job ID 
-// /api/v1/job/:id
-exports.deleteJobById = catchAsyncErrors( async (req, res, next) => {
-    try {
-        await Job.findByIdAndDelete(req.params.id);
-
-        res.status(200).json({
-            success : true,
-            message : 'Job deleted',
-        });
-    } catch(e) {
-        return next(new ErrorHandler('Error: Job not found', 404));
-    }
 });
 
 // Get statistics about all jobs (Not working)

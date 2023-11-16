@@ -3,10 +3,10 @@ const router = express.Router();
 
 // Import controllers
 const {
-    createNewJob,
-    getJobById,
-    updateJobById,
-    deleteJobById,
+    createJob,
+    getJob,
+    updateJob,
+    deleteJob,
     getAllJobs,
     getAllJobsInRadius,
     getStatsByJobTopic,
@@ -16,11 +16,11 @@ const {
 const { isUserAuthenticated, authorizedRoles } = require('../middleware/auth');
 
 // Set up routing for individual job CRUD
-router.route('/job/create').post(isUserAuthenticated, authorizedRoles("employer", "admin"), createNewJob);
+router.route('/job/').post(isUserAuthenticated, authorizedRoles("employer", "admin"), createJob);
 router.route('/job/:id')
-    .get(getJobById)
-    .put(isUserAuthenticated, authorizedRoles("employer", "admin"), updateJobById)
-    .delete(isUserAuthenticated, authorizedRoles("employer", "admin"), deleteJobById);
+    .get(getJob)
+    .put(isUserAuthenticated, authorizedRoles("employer", "admin"), updateJob)
+    .delete(isUserAuthenticated, authorizedRoles("employer", "admin"), deleteJob);
 
 // Set up routing for all jobs routes
 router.route('/jobs').get(getAllJobs);
