@@ -2,10 +2,8 @@
 const User = require('../models/userSchema');
 
 // Get utility functions
-const geoCoder = require('../utils/geocoder');
 const ErrorHandler = require('../utils/errorHandler');
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
-const APIFilter = require('../utils/filterHandler');
 const sendToken = require('../utils/jwtToken');
 const sendEmail = require('../utils/sendEmail');
 
@@ -14,7 +12,7 @@ const crypto = require('crypto');
 
 // Create new user
 // /api/v1/user/create
-exports.createNewUser = catchAsyncErrors( async (req, res, next) => {
+exports.createUser = catchAsyncErrors( async (req, res, next) => {
     const { name, email, password, role } = req.body;
 
     const user = await User.create({

@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpire : String
 });
 
-// Encrypting password before storing
+// Middleware to encrypt password before storing
 userSchema.pre('save', async function(next){
 
     // if user password is not modified, do not hash it
@@ -48,19 +48,19 @@ userSchema.pre('save', async function(next){
     this.password = await bcrypt.hash(this.password, 10)
 });
 
-// Return JSON web token
+// Middleware to generate and return JSON web token
 userSchema.methods.getJwtToken = function() {
     return jwt.sign({ id : this._id}, process.env.JWT_SECRET, {
         expiresIn : process.env.JWT_EXPIRES_TIME
     })
 };
 
-// Check password with input
+// Middleware to compare stored password with user input password
 userSchema.methods.comparePasswords = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 }
 
-// Generate password reset token
+// Middleware to generate and return password reset token
 userSchema.methods.getResetPasswordToken = function() {
     const resetToken = crypto.randomBytes(20).toString('hex');
 

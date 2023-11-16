@@ -3,7 +3,7 @@ const User = require('../models/userSchema');
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const ErrorHandler = require('../utils/errorHandler');
 
-// Check if the user is authenticated or not
+// Check if the user is logged in or not
 exports.isUserAuthenticated = catchAsyncErrors( async (req, res, next) => {
     let token;
 

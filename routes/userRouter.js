@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Import controllers
 const {
-    createNewUser,
+    createUser,
     getUser,
     loginUser,
     logoutUser,
@@ -12,15 +12,16 @@ const {
     updatePassword
 } = require('../controllers/userController');
 
-// Import authentication check
+// Import user login checking function
 const { isUserAuthenticated } = require('../middleware/auth');
 
-// Set up routing for requests to be handled by controller
-router.route('/user/create').post(createNewUser);
+// Set up routing for general user CRUD and login/logout
+router.route('/user/create').post(createUser);
 router.route('/user/get').get(isUserAuthenticated, getUser);
 router.route('/user/login').post(loginUser);
 router.route('/user/logout').get(isUserAuthenticated, logoutUser);
 
+// Set up routing for user password reset/update
 router.route('/user/password/forgot').post(forgotPassword);
 router.route('/user/password/reset/:token').put(resetPassword);
 router.route('/user/password/update').put(isUserAuthenticated, updatePassword);
