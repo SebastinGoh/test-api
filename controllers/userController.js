@@ -1,5 +1,6 @@
 // Get database schema modals
 const User = require('../models/userSchema');
+const Job = require('../models/jobSchema');
 
 // Get utility functions
 const ErrorHandler = require('../utils/errorHandler');
@@ -9,6 +10,7 @@ const sendEmail = require('../utils/sendEmail');
 
 // Get external libraries
 const crypto = require('crypto');
+const fs = require('fs');
 
 // Create new user (POST)
 // /api/v1/user/
@@ -67,6 +69,33 @@ exports.updateUser = catchAsyncErrors( async(req, res, next) => {
 // /api/v1/user/
 exports.deleteUser = catchAsyncErrors( async (req, res, next) => {
     const user = await User.findByIdAndDelete(req.user.id);
+
+    // Delete user data based on role
+    switch (user.role) {
+        // Delete all jobs published by employer
+        case "employer":
+            await Job.deleteMany({ user : user });
+            break;
+
+        // Delete all applied jobs and resumes by user
+        case "user":
+            const appliedJobs = await Job.find({'applicantsApplied.id' : user }).select('+applicantsApplied');
+
+            for (let i=0; i < appliedJobs.length; i++) {
+                let obj = appliedJobs[i].applicantsApplied.find( o => o.id === user);
+
+                let filepath = `${__dirname}/public/uploads/${obj.resume}`.replace('\\controllers', '');
+
+                fs.unlink(filepath, err => {
+                    if (err) return next(new ErrorHandler("Error: Issue deleting file"), 500);
+                });
+
+                appliedJobs[i].applicantsApplied.splice(appliedJobs[i].applicantsApplied.indexOf(obj.id));
+
+                appliedJobs[i].save();
+            }
+            break;
+    }
 
     res.cookie('token', 'none', {
         expires : new Date(Date.now()),
