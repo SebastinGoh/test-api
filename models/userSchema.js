@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordToken : String,
     resetPasswordExpire : String
+},
+{
+    toJSON : { virtuals : true },
+    toObject : { virtuals : true }
 });
 
 // Middleware to encrypt password before storing
@@ -74,5 +78,13 @@ userSchema.methods.getResetPasswordToken = function() {
 
     return resetToken;
 }
+
+// Show all jobs created by user
+userSchema.virtual('jobsPublished', {
+    ref : 'Job',
+    localField : '_id',
+    foreignField : 'user',
+    justOne : false
+})
 
 module.exports = mongoose.model('User', userSchema)

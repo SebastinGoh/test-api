@@ -30,7 +30,11 @@ exports.createUser = catchAsyncErrors( async (req, res, next) => {
 // /api/v1/user/
 exports.getUser = catchAsyncErrors( async (req, res, next) => {
    
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id)
+        .populate({
+            path : 'jobsPublished',
+            select : 'title postingDate'
+        });
 
     res.status(200).json({
         success : true,
