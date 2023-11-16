@@ -1,6 +1,6 @@
 // Handle Error: Shut down server due to uncaught exceptions
 process.on('uncaughtException', err => {
-    console.log(`Error: ${err.message}`);
+    console.log(`Error: ${err.stack}`);
     console.log('Shutting down server due to uncaught exception');
     process.exit(1);
 })
