@@ -118,6 +118,11 @@ const jobSchema = new mongoose.Schema({
         type : [Object],
         // will not show this when normal user gets job posting information
         select : false
+    },
+    user : {
+        type : mongoose.Schema.ObjectId,
+        ref : 'User',
+        required : true
     }
 });
 
