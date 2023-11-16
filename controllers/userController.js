@@ -29,7 +29,7 @@ exports.createNewUser = catchAsyncErrors( async (req, res, next) => {
 });
 
 // Get user details
-// /api/v1/user/:id
+// /api/v1/user/get
 exports.getUser = catchAsyncErrors( async (req, res, next) => {
    
     const user = await User.findById(req.user.id);
@@ -64,8 +64,40 @@ exports.loginUser = catchAsyncErrors( async (req, res, next) => {
     }
 });
 
+// Logout user
+// /api/v1/user/logout
+exports.logoutUser = catchAsyncErrors( async(req, res, next) => {
+    res.cookie('token', 'none', {
+        expires : new Date(Date.now()),
+        httpOnly : true
+    });
+
+    res.status(200).json({
+        success : true,
+        message : 'Successfully logged out'
+    });
+});
+
+// Update user password
+// /api/v1/user/password/update
+exports.updatePassword = catchAsyncErrors( async(req, res, next) => {
+    
+    const user = await User.findById(req.user.id).select('+password');
+
+    const doPasswordsMatch = await user.comparePasswords(req.body.oldPassword)
+    if (!doPasswordsMatch) {
+        return next(new ErrorHandler('Error: Invalid old password', 401));
+    }
+
+    // Setup new password
+    user.password = req.body.newPassword;
+    await user.save();
+
+    sendToken(user, 200, res);
+});
+
 // User forgot password
-// /api/v1/user/forgot
+// /api/v1/user/password/forgot
 exports.forgotPassword = catchAsyncErrors( async(req, res, next) => {
     const user = await User.findOne({ email : req.body.email });
 
@@ -101,7 +133,7 @@ exports.forgotPassword = catchAsyncErrors( async(req, res, next) => {
         });
 
     } catch(e) {
-
+        // if error, reset password token
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined
 
@@ -112,7 +144,7 @@ exports.forgotPassword = catchAsyncErrors( async(req, res, next) => {
 });
 
 // Reset password link
-// /api/v1/user/reset/:token
+// /api/v1/user/password/reset/:token
 exports.resetPassword = catchAsyncErrors( async(req, res, next) => {
     // Hash url token
     const resetPasswordToken = crypto
@@ -129,25 +161,11 @@ exports.resetPassword = catchAsyncErrors( async(req, res, next) => {
         return next(new ErrorHandler('Error: Invalid password reset token', 400));
     }
 
-    // Setup new password
+    // Setup new password and reset password token
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
 
     sendToken(user, 200, res);
-});
-
-// Logout user
-// /api/v1/user/logout
-exports.logoutUser = catchAsyncErrors( async(req, res, next) => {
-    res.cookie('token', 'none', {
-        expires : new Date(Date.now()),
-        httpOnly : true
-    });
-
-    res.status(200).json({
-        success : true,
-        message : 'Successfully logged out'
-    });
 });

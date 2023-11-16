@@ -6,9 +6,10 @@ const {
     createNewUser,
     getUser,
     loginUser,
+    logoutUser,
     forgotPassword,
     resetPassword,
-    logoutUser
+    updatePassword
 } = require('../controllers/userController');
 
 // Import authentication check
@@ -18,9 +19,10 @@ const { isUserAuthenticated } = require('../middleware/auth');
 router.route('/user/create').post(createNewUser);
 router.route('/user/get').get(isUserAuthenticated, getUser);
 router.route('/user/login').post(loginUser);
-
-router.route('/user/forgot').post(forgotPassword);
-router.route('/user/reset/:token').put(resetPassword);
 router.route('/user/logout').get(isUserAuthenticated, logoutUser);
+
+router.route('/user/password/forgot').post(forgotPassword);
+router.route('/user/password/reset/:token').put(resetPassword);
+router.route('/user/password/update').put(isUserAuthenticated, updatePassword);
 
 module.exports = router;
