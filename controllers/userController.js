@@ -10,8 +10,8 @@ const sendEmail = require('../utils/sendEmail');
 // Get external libraries
 const crypto = require('crypto');
 
-// Create new user
-// /api/v1/user/create
+// Create new user (POST)
+// /api/v1/user/
 exports.createUser = catchAsyncErrors( async (req, res, next) => {
     const { name, email, password, role } = req.body;
 
@@ -26,8 +26,8 @@ exports.createUser = catchAsyncErrors( async (req, res, next) => {
     sendToken(user, 200, res);
 });
 
-// Get user details
-// /api/v1/user/get
+// Read user details (GET)
+// /api/v1/user/
 exports.getUser = catchAsyncErrors( async (req, res, next) => {
    
     const user = await User.findById(req.user.id);
@@ -38,8 +38,8 @@ exports.getUser = catchAsyncErrors( async (req, res, next) => {
     });
 });
 
-// Update user name or email
-// /api/v1/user/update
+// Update user name or email (PUT)
+// /api/v1/user/
 exports.updateUser = catchAsyncErrors( async(req, res, next) => {
     
     const newUserData = {
@@ -59,8 +59,8 @@ exports.updateUser = catchAsyncErrors( async(req, res, next) => {
     });
 });
 
-// Delete user account
-// /api/v1/user/delete
+// Delete current user account (DELETE)
+// /api/v1/user/
 exports.deleteUser = catchAsyncErrors( async (req, res, next) => {
     const user = await User.findByIdAndDelete(req.user.id);
 
@@ -75,7 +75,7 @@ exports.deleteUser = catchAsyncErrors( async (req, res, next) => {
     })
 });
 
-// Try to post user input to login
+// Try to login using user input (POST)
 // /api/v1/user/login
 exports.loginUser = catchAsyncErrors( async (req, res, next) => {
     const { email, password } = req.body;
@@ -99,7 +99,7 @@ exports.loginUser = catchAsyncErrors( async (req, res, next) => {
     }
 });
 
-// Logout user
+// Logout user (GET)
 // /api/v1/user/logout
 exports.logoutUser = catchAsyncErrors( async(req, res, next) => {
     res.cookie('token', 'none', {
