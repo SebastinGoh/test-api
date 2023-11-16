@@ -38,6 +38,27 @@ exports.getUser = catchAsyncErrors( async (req, res, next) => {
     });
 });
 
+// Update user name or email
+// /api/v1/user/update
+exports.updateUser = catchAsyncErrors( async(req, res, next) => {
+    
+    const newUserData = {
+        name : req.body.name,
+        email : req.body.email
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new : true,
+        runValidators : true,
+        useFindAndModify : false
+    })
+
+    res.status(200).json({
+        success : true,
+        data : user
+    });
+});
+
 // Try to post user input to login
 // /api/v1/user/login
 exports.loginUser = catchAsyncErrors( async (req, res, next) => {
