@@ -14,6 +14,14 @@ module.exports = (err, req, res, next) => {
             })
             break
         case "production":
+            if (err.name === "JsonWebTokenError") {
+                const message = 'JSON Web Token is invalid';
+                error = new ErrorHandler(message, 500);
+            }
+            if (err.name === "TokenExpiredError") {
+                const message = 'JSON Web Token has expired';
+                error = new ErrorHandler(message, 500);
+            }
             let error = {...error};
 
             error.message = err.message;
@@ -22,7 +30,7 @@ module.exports = (err, req, res, next) => {
                 success : false,
                 message : error.message || 'Internal Server Error'
             })
-
+            
             break
     }
 }
