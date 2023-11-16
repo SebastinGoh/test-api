@@ -6,6 +6,7 @@ const {
     createUser,
     getUser,
     updateUser,
+    deleteUser,
     loginUser,
     logoutUser,
     forgotPassword,
@@ -20,6 +21,7 @@ const { isUserAuthenticated } = require('../middleware/auth');
 router.route('/user/create').post(createUser);
 router.route('/user/get').get(isUserAuthenticated, getUser);
 router.route('/user/update').put(isUserAuthenticated, updateUser);
+router.route('/user/delete').delete(isUserAuthenticated, deleteUser);
 router.route('/user/login').post(loginUser);
 router.route('/user/logout').get(isUserAuthenticated, logoutUser);
 

@@ -59,6 +59,22 @@ exports.updateUser = catchAsyncErrors( async(req, res, next) => {
     });
 });
 
+// Delete user account
+// /api/v1/user/delete
+exports.deleteUser = catchAsyncErrors( async (req, res, next) => {
+    const user = await User.findByIdAndDelete(req.user.id);
+
+    res.cookie('token', 'none', {
+        expires : new Date(Date.now()),
+        httpOnly : true
+    });
+
+    res.status(200).json({
+        success : true,
+        message : 'Your account has been deleted'
+    })
+});
+
 // Try to post user input to login
 // /api/v1/user/login
 exports.loginUser = catchAsyncErrors( async (req, res, next) => {
