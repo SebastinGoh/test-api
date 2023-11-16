@@ -4,6 +4,7 @@ const router = express.Router();
 // Import controllers
 const {
     createNewUser,
+    getUser,
     loginUser,
     forgotPassword,
     resetPassword,
@@ -15,6 +16,7 @@ const { isUserAuthenticated } = require('../middleware/auth');
 
 // Set up routing for requests to be handled by controller
 router.route('/user/create').post(createNewUser);
+router.route('/user/get').get(isUserAuthenticated, getUser);
 router.route('/user/login').post(loginUser);
 
 router.route('/user/forgot').post(forgotPassword);

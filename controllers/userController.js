@@ -12,7 +12,7 @@ const sendEmail = require('../utils/sendEmail');
 // Get external libraries
 const crypto = require('crypto');
 
-// Create new job
+// Create new user
 // /api/v1/user/create
 exports.createNewUser = catchAsyncErrors( async (req, res, next) => {
     const { name, email, password, role } = req.body;
@@ -26,6 +26,18 @@ exports.createNewUser = catchAsyncErrors( async (req, res, next) => {
 
     // Create and store JSON Web Token
     sendToken(user, 200, res);
+});
+
+// Get user details
+// /api/v1/user/:id
+exports.getUser = catchAsyncErrors( async (req, res, next) => {
+   
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+        success : true,
+        data : user
+    });
 });
 
 // Try to post user input to login
