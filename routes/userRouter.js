@@ -11,7 +11,8 @@ const {
     logoutUser,
     updatePassword,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    adminDeleteUser
 } = require('../controllers/userController');
 
 // Import user login checking function
@@ -22,6 +23,7 @@ router.route('/user/')
     .post(createUser)
     .get(isUserAuthenticated, getUser)
     .put(isUserAuthenticated, updateUser)
+router.route('/user/:id')
     .delete(isUserAuthenticated, deleteUser);
 router.route('/user/login').post(loginUser);
 router.route('/user/logout').get(isUserAuthenticated, logoutUser);

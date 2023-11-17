@@ -105,23 +105,41 @@ exports.updateUser = catchAsyncErrors( async(req, res, next) => {
 });
 
 // Delete current user account (DELETE)
-// /api/v1/user/
+// /api/v1/user/:id
 exports.deleteUser = catchAsyncErrors( async (req, res, next) => {
-    const user = await User.findByIdAndDelete(req.user.id);
+    
+    const user = await User.findById(req.user.id);
+    console.log(`Req ID: ${req.params.id}`);
+    console.log(`Role: ${user.role}`);
+
+    let userToDelete;
+    // If 'admin' role and specified a user id
+    if (user.role === "admin" && req.params.id) {
+        // try to set account to delete as specified
+        userToDelete = await User.findById(req.params.id)
+
+        if (!user) {
+            return next(new ErrorHandler(`Error: Invalid user id ${req.params.id}`, 404));
+        }
+    } else {
+        userToDelete = req.user.id;
+    }
+
+    userToDelete = await User.findByIdAndDelete(userToDelete.id);
 
     // Delete user data based on role
-    switch (user.role) {
+    switch (userToDelete.role) {
         // Delete all jobs published by employer
         case "employer":
-            await Job.deleteMany({ user : user });
-            break;
+            await Job.deleteMany({ user : userToDelete });
+        break;
 
         // Delete all applied jobs and resumes by user
         case "user":
-            const appliedJobs = await Job.find({'applicantsApplied.id' : user }).select('+applicantsApplied');
+            const appliedJobs = await Job.find({'applicantsApplied.id' : userToDelete }).select('+applicantsApplied');
 
             for (let i=0; i < appliedJobs.length; i++) {
-                let obj = appliedJobs[i].applicantsApplied.find( o => o.id === user);
+                let obj = appliedJobs[i].applicantsApplied.find( o => o.id === userToDelete);
 
                 let filepath = `${__dirname}/public/uploads/${obj.resume}`.replace('\\controllers', '');
 
@@ -133,17 +151,20 @@ exports.deleteUser = catchAsyncErrors( async (req, res, next) => {
 
                 appliedJobs[i].save();
             }
-            break;
+        break;
     }
-
-    res.cookie('token', 'none', {
-        expires : new Date(Date.now()),
-        httpOnly : true
-    });
+    
+    // if current user deleted their own account
+    if (userToDelete === user) {
+        res.cookie('token', 'none', {
+            expires : new Date(Date.now()),
+            httpOnly : true
+        });
+    }
 
     res.status(200).json({
         success : true,
-        message : 'Your account has been deleted'
+        message : 'The account has been deleted'
     })
 });
 
