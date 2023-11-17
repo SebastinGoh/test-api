@@ -7,6 +7,7 @@ const ErrorHandler = require('../utils/errorHandler');
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const sendToken = require('../utils/jwtToken');
 const sendEmail = require('../utils/sendEmail');
+const APIFilter = require('../utils/filterHandler');
 
 // Get external libraries
 const crypto = require('crypto');
@@ -32,25 +33,47 @@ exports.createUser = catchAsyncErrors( async (req, res, next) => {
 // /api/v1/user/
 exports.getUser = catchAsyncErrors( async (req, res, next) => {
 
-    if (req.user.role === "user") {
-        // Get details with all applied jobs for users
+    if (req.user.role === "admin") {
+        // Get details with all published jobs for admin
         const user = await User.findById(req.user.id)
-        .populate({
-            path : 'jobsApplied',
-            select : ''
-        });
+            .populate({
+                path : 'jobsPublished',
+                select : 'title postingDate'
+            });
+        
+        let users;
+        if (req.query) {
+            const apiFilter = new APIFilter(User.find(), req.query)
+                .filter()
+                .limitFields();
+            users = await apiFilter.query;
+        } else {
+            users = await User.find();
+        }
+        user.users = users;
 
         res.status(200).json({
             success : true,
             data : user
         });
+    } else if (req.user.role === "employer") {
+        // Get details with all published jobs for employers
+        const user = await User.findById(req.user.id)
+            .populate({
+                path : 'jobsPublished',
+                select : 'title postingDate'
+            });
 
+        res.status(200).json({
+            success : true,
+            data : user
+        });
     } else {
-        // Get details with all published jobs for employers or admin
+        // Get details with all applied jobs for users
         const user = await User.findById(req.user.id)
         .populate({
-            path : 'jobsPublished',
-            select : 'title postingDate'
+            path : 'jobsApplied',
+            select : 'id'
         });
 
         res.status(200).json({

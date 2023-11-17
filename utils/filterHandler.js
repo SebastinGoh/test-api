@@ -24,7 +24,6 @@ class filterHandler {
         if (this.queryStr.fields) {
             const fields = this.queryStr.fields.split(',').join(' ');
             this.query = this.query.select(fields);
-            console.log(fields);
         } else {
             this.query = this.query.select('-__v');
         }
