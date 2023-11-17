@@ -79,12 +79,20 @@ userSchema.methods.getResetPasswordToken = function() {
     return resetToken;
 }
 
-// Show all jobs created by user
+// Show all jobs created by user with "admin" or "employer" role
 userSchema.virtual('jobsPublished', {
     ref : 'Job',
     localField : '_id',
     foreignField : 'user',
     justOne : false
-})
+});
+
+// Show all jobs applied by user with "user" role
+userSchema.virtual('jobsApplied', {
+    ref : 'Job',
+    localField : '_id',
+    foreignField : 'applicantsApplied',
+    justOne : false
+});
 
 module.exports = mongoose.model('User', userSchema)

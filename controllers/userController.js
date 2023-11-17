@@ -31,17 +31,33 @@ exports.createUser = catchAsyncErrors( async (req, res, next) => {
 // Read user details (GET)
 // /api/v1/user/
 exports.getUser = catchAsyncErrors( async (req, res, next) => {
-   
-    const user = await User.findById(req.user.id)
+
+    if (req.user.role === "user") {
+        // Get details with all applied jobs for users
+        const user = await User.findById(req.user.id)
+        .populate({
+            path : 'jobsApplied',
+            select : ''
+        });
+
+        res.status(200).json({
+            success : true,
+            data : user
+        });
+
+    } else {
+        // Get details with all published jobs for employers or admin
+        const user = await User.findById(req.user.id)
         .populate({
             path : 'jobsPublished',
             select : 'title postingDate'
         });
 
-    res.status(200).json({
-        success : true,
-        data : user
-    });
+        res.status(200).json({
+            success : true,
+            data : user
+        });
+    }
 });
 
 // Update user name or email (PUT)
